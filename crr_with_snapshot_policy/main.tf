@@ -59,6 +59,73 @@ resource "azurerm_netapp_account" "example_primary" {
   resource_group_name = azurerm_resource_group.example.name
 }
 
+resource "azurerm_netapp_snapshot_policy" "example_primary" {
+  name                = "${var.prefix}-snapshotpolicy-primary"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  account_name        = azurerm_netapp_account.example_primary.name
+  enabled             = true
+
+  hourly_schedule {
+    snapshots_to_keep = 4
+    minute            = 15
+  }
+
+  daily_schedule {
+    snapshots_to_keep = 2
+    hour              = 20
+    minute            = 15
+  }
+
+  weekly_schedule {
+    snapshots_to_keep = 1
+    days_of_week      = ["Monday", "Friday"]
+    hour              = 23
+    minute            = 0
+  }
+
+  monthly_schedule {
+    snapshots_to_keep = 1
+    days_of_month     = [1, 15, 20, 30]
+    hour              = 5
+    minute            = 45
+  }
+}
+
+resource "azurerm_netapp_snapshot_policy" "example_secondary" {
+  name                = "${var.prefix}-snapshotpolicy-secondary"
+  location            = var.location-secondary
+  resource_group_name = azurerm_resource_group.example.name
+  account_name        = azurerm_netapp_account.example_secondary.name
+  enabled             = true
+
+  hourly_schedule {
+    snapshots_to_keep = 4
+    minute            = 15
+  }
+
+  daily_schedule {
+    snapshots_to_keep = 2
+    hour              = 20
+    minute            = 15
+  }
+
+  weekly_schedule {
+    snapshots_to_keep = 1
+    days_of_week      = ["Monday", "Friday"]  
+    hour              = 23
+    minute            = 0
+  }
+
+  monthly_schedule {
+    snapshots_to_keep = 1
+    days_of_month     = [1, 15, 20, 30]
+    hour              = 5
+    minute            = 45
+  }
+}
+
+
 resource "azurerm_netapp_account" "example_secondary" {
   name                = "${var.prefix}-netappaccount-secondary"
   location            = var.location-secondary
@@ -107,6 +174,10 @@ resource "azurerm_netapp_volume" "example_primary" {
    unix_read_write   = true
   }
 
+  data_protection_snapshot_policy {
+    snapshot_policy_id = azurerm_netapp_snapshot_policy.example_primary.id
+  }
+
 }
 
 resource "azurerm_netapp_volume" "example_secondary" {
@@ -139,7 +210,12 @@ resource "azurerm_netapp_volume" "example_secondary" {
       endpoint_type             = "dst" # supported values are "src" and "dst"
       remote_volume_location    = azurerm_resource_group.example.location
       remote_volume_resource_id = azurerm_netapp_volume.example_primary.id
-      replication_schedule      = "_10minutely" #  supported values are "_10minutely", "hourly" and "daily"
+      replication_frequency     = "10minutes" #  supported values are "10minutes", "hourly" and "daily"
   }
+
+  data_protection_snapshot_policy {
+    snapshot_policy_id = azurerm_netapp_snapshot_policy.example_secondary.id
+  }
+
 
 }
