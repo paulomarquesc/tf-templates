@@ -1,3 +1,5 @@
+// Same accounts, same vnets, same pool
+
 provider "azurerm" {
   features {}
 }
@@ -5,6 +7,10 @@ provider "azurerm" {
 resource "azurerm_resource_group" "example" {
   name     = "${var.prefix}-resources"
   location = var.location
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z",
+    "SkipNRMSNSG"   = "true"
+  }
 }
 
 resource "azurerm_virtual_network" "example_primary" {
@@ -12,6 +18,9 @@ resource "azurerm_virtual_network" "example_primary" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   address_space       = ["10.0.0.0/16"]
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z"
+  }
 }
 
 resource "azurerm_subnet" "example_primary" {
@@ -32,9 +41,12 @@ resource "azurerm_subnet" "example_primary" {
 
 resource "azurerm_virtual_network" "example_secondary" {
   name                = "${var.prefix}-virtualnetwork-secondary"
-  location            = var.location-secondary
+  location            = var.location
   resource_group_name = azurerm_resource_group.example.name
   address_space       = ["11.0.0.0/16"]
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z"
+  }
 }
 
 resource "azurerm_subnet" "example_secondary" {
@@ -57,12 +69,9 @@ resource "azurerm_netapp_account" "example_primary" {
   name                = "${var.prefix}-netappaccount-primary"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-}
-
-resource "azurerm_netapp_account" "example_secondary" {
-  name                = "${var.prefix}-netappaccount-secondary"
-  location            = var.location-secondary
-  resource_group_name = azurerm_resource_group.example.name
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z"
+  }
 }
 
 resource "azurerm_netapp_pool" "example_primary" {
@@ -72,15 +81,9 @@ resource "azurerm_netapp_pool" "example_primary" {
   account_name        = azurerm_netapp_account.example_primary.name
   service_level       = "Standard"
   size_in_tb          = 4
-}
-
-resource "azurerm_netapp_pool" "example_secondary" {
-  name                = "${var.prefix}-netapppool-secondary"
-  location            = var.location-secondary
-  resource_group_name = azurerm_resource_group.example.name
-  account_name        = azurerm_netapp_account.example_secondary.name
-  service_level       = "Standard"
-  size_in_tb          = 4
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z"
+  }
 }
 
 resource "azurerm_netapp_volume" "example_primary" {
@@ -98,13 +101,17 @@ resource "azurerm_netapp_volume" "example_primary" {
   protocols           = ["NFSv3"]
   subnet_id           = azurerm_subnet.example_primary.id
   storage_quota_in_gb = 100
+  zone                = "1"
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z"
+  }
 
-  export_policy_rule  {
-   rule_index        = 1
-   allowed_clients   = ["0.0.0.0/0"]
-   protocols_enabled = ["NFSv3"]
-   unix_read_only    = false
-   unix_read_write   = true
+  export_policy_rule {
+    rule_index        = 1
+    allowed_clients   = ["0.0.0.0/0"]
+    protocols_enabled = ["NFSv3"]
+    unix_read_only    = false
+    unix_read_write   = true
   }
 
 }
@@ -114,31 +121,35 @@ resource "azurerm_netapp_volume" "example_secondary" {
     prevent_destroy = true
   }
 
-  depends_on = [ azurerm_netapp_volume.example_primary ]
+  depends_on = [azurerm_netapp_volume.example_primary]
 
   name                = "${var.prefix}-netappvolume-secondary"
-  location            = var.location-secondary
+  location            = var.location
   resource_group_name = azurerm_resource_group.example.name
-  account_name        = azurerm_netapp_account.example_secondary.name
-  pool_name           = azurerm_netapp_pool.example_secondary.name
+  account_name        = azurerm_netapp_account.example_primary.name
+  pool_name           = azurerm_netapp_pool.example_primary.name
   volume_path         = "${var.prefix}-netappvolume-secondary"
   service_level       = "Standard"
   protocols           = ["NFSv3"]
-  subnet_id           = azurerm_subnet.example_secondary.id
+  subnet_id           = azurerm_subnet.example_primary.id
   storage_quota_in_gb = 100
+  zone                = "2"
+  tags = {
+    "CreatedOnDate" = "2023-07-15T02:38:41.0178385Z"
+  }
 
-  export_policy_rule  {
-   rule_index        = 1
-   allowed_clients   = ["0.0.0.0/0"]
-   protocols_enabled = ["NFSv3"]
-   unix_read_only    = false
-   unix_read_write   = true
+  export_policy_rule {
+    rule_index        = 1
+    allowed_clients   = ["0.0.0.0/0"]
+    protocols_enabled = ["NFSv3"]
+    unix_read_only    = false
+    unix_read_write   = true
   }
 
   data_protection_replication {
-      endpoint_type             = "dst" # supported values are "src" and "dst"
-      remote_volume_location    = azurerm_resource_group.example.location
-      remote_volume_resource_id = azurerm_netapp_volume.example_primary.id
-      replication_frequency     = "10minutes" #  supported values are "10minutes", "hourly" and "daily"
+    endpoint_type             = "dst" # supported values are "src" and "dst"
+    remote_volume_location    = azurerm_resource_group.example.location
+    remote_volume_resource_id = azurerm_netapp_volume.example_primary.id
+    replication_frequency     = "10minutes" #  supported values are "10minutes", "hourly" and "daily"
   }
 }

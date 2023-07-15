@@ -185,13 +185,12 @@ resource "azurerm_netapp_pool" "test" {
 }
 
 
-resource "azurerm_netapp_volume_group" "test" {
+resource "azurerm_netapp_volume_group_sap_hana" "test" {
   name                   = "${var.prefix}-netapp-volumegroup"
   location               = azurerm_resource_group.test.location
   resource_group_name    = azurerm_resource_group.test.name
   account_name           = azurerm_netapp_account.test.name
   group_description      = "Test volume group"
-  application_type       = "SAP-HANA"
   application_identifier = "TST"
   
   volume {

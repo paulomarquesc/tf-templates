@@ -1,3 +1,5 @@
+// Different accounts and vnets
+
 provider "azurerm" {
   features {}
 }
@@ -32,7 +34,7 @@ resource "azurerm_subnet" "example_primary" {
 
 resource "azurerm_virtual_network" "example_secondary" {
   name                = "${var.prefix}-virtualnetwork-secondary"
-  location            = var.location-secondary
+  location            = var.location
   resource_group_name = azurerm_resource_group.example.name
   address_space       = ["11.0.0.0/16"]
 }
@@ -61,7 +63,7 @@ resource "azurerm_netapp_account" "example_primary" {
 
 resource "azurerm_netapp_account" "example_secondary" {
   name                = "${var.prefix}-netappaccount-secondary"
-  location            = var.location-secondary
+  location            = var.location
   resource_group_name = azurerm_resource_group.example.name
 }
 
@@ -76,7 +78,7 @@ resource "azurerm_netapp_pool" "example_primary" {
 
 resource "azurerm_netapp_pool" "example_secondary" {
   name                = "${var.prefix}-netapppool-secondary"
-  location            = var.location-secondary
+  location            = var.location
   resource_group_name = azurerm_resource_group.example.name
   account_name        = azurerm_netapp_account.example_secondary.name
   service_level       = "Standard"
@@ -98,6 +100,7 @@ resource "azurerm_netapp_volume" "example_primary" {
   protocols           = ["NFSv3"]
   subnet_id           = azurerm_subnet.example_primary.id
   storage_quota_in_gb = 100
+  zone                = "1"
 
   export_policy_rule  {
    rule_index        = 1
@@ -117,7 +120,7 @@ resource "azurerm_netapp_volume" "example_secondary" {
   depends_on = [ azurerm_netapp_volume.example_primary ]
 
   name                = "${var.prefix}-netappvolume-secondary"
-  location            = var.location-secondary
+  location            = var.location
   resource_group_name = azurerm_resource_group.example.name
   account_name        = azurerm_netapp_account.example_secondary.name
   pool_name           = azurerm_netapp_pool.example_secondary.name
@@ -126,6 +129,7 @@ resource "azurerm_netapp_volume" "example_secondary" {
   protocols           = ["NFSv3"]
   subnet_id           = azurerm_subnet.example_secondary.id
   storage_quota_in_gb = 100
+  zone                = "2"
 
   export_policy_rule  {
    rule_index        = 1
