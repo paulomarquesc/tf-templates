@@ -60,7 +60,6 @@ resource "azurerm_netapp_volume" "example" {
   protocols           = ["NFSv3"]
   subnet_id           = azurerm_subnet.example.id
   storage_quota_in_gb = 100
-  security_style      = "ntfs"
 
   export_policy_rule {
     rule_index = 1
