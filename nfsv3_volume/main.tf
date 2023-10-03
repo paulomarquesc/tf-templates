@@ -5,6 +5,10 @@ provider "azurerm" {
 resource "azurerm_resource_group" "example" {
   name     = "${var.prefix}-resources"
   location = var.location
+  tags = {
+    CreatedOnDate = "2023-10-03T19:58:43.6509795Z",
+    SkipNRMSNSG   = "true"
+  }
 }
 
 resource "azurerm_virtual_network" "example" {
@@ -12,6 +16,11 @@ resource "azurerm_virtual_network" "example" {
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
   address_space       = ["10.0.0.0/16"]
+
+  tags = {
+    CreatedOnDate = "2023-10-03T19:58:43.6509795Z",
+    SkipNRMSNSG   = "true"
+  }
 }
 
 resource "azurerm_subnet" "example" {
@@ -34,6 +43,9 @@ resource "azurerm_netapp_account" "example" {
   name                = "${var.prefix}-netappaccount"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
+  tags = {
+    CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
+  }
 }
 
 resource "azurerm_netapp_pool" "example" {
@@ -43,6 +55,9 @@ resource "azurerm_netapp_pool" "example" {
   account_name        = azurerm_netapp_account.example.name
   service_level       = "Standard"
   size_in_tb          = 4
+  tags = {
+    CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
+  }
 }
 
 resource "azurerm_netapp_volume" "example" {
@@ -60,6 +75,10 @@ resource "azurerm_netapp_volume" "example" {
   protocols           = ["NFSv3"]
   subnet_id           = azurerm_subnet.example.id
   storage_quota_in_gb = 100
+
+  tags = {
+    CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
+  }
 
   export_policy_rule {
     rule_index = 1
