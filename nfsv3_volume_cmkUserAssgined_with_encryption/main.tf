@@ -171,8 +171,56 @@ resource "azurerm_netapp_account_encryption" "example" {
 	encryption {
 		key_vault_key_id = azurerm_key_vault_key.example.versionless_id
 	}
+}
 
-	depends_on = [
-		azurerm_private_endpoint.example
-	]
+resource "azurerm_netapp_pool" "example" {
+  name                = "${var.prefix}-pool"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  account_name        = azurerm_netapp_account.example.name
+  service_level       = "Standard"
+  size_in_tb          = 4
+
+  tags = {
+    "CreatedOnDate"    = "2022-07-08T23:50:21Z",
+    "SkipASMAzSecPack" = "true"
+  }
+
+  depends_on = [
+    azurerm_netapp_account_encryption.example
+  ]
+}
+
+resource "azurerm_netapp_volume" "example" {
+  name                          = "${var.prefix}-vol"
+  location                      = azurerm_resource_group.example.location
+  resource_group_name           = azurerm_resource_group.example.name
+  account_name                  = azurerm_netapp_account.example.name
+  pool_name                     = azurerm_netapp_pool.example.name
+  volume_path                   = "${var.prefix}-my-unique-file-path-vol"
+  service_level                 = "Standard"
+  subnet_id                     = azurerm_subnet.example-delegated.id
+  storage_quota_in_gb           = 100
+  network_features              = "Standard"
+  encryption_key_source         = "Microsoft.KeyVault"
+  key_vault_private_endpoint_id = azurerm_private_endpoint.example.id
+
+  export_policy_rule {
+    rule_index          = 1
+    allowed_clients     = ["0.0.0.0/0"]
+    protocols_enabled   = ["NFSv3"]
+    unix_read_only      = false
+    unix_read_write     = true
+    root_access_enabled = true
+  }
+
+  tags = {
+    "CreatedOnDate"    = "2022-07-08T23:50:21Z",
+    "SkipASMAzSecPack" = "true"
+  }
+
+  depends_on = [
+    azurerm_netapp_account_encryption.example,
+    azurerm_private_endpoint.example
+  ]
 }
