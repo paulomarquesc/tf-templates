@@ -18,7 +18,6 @@ resource "azurerm_resource_group" "example" {
   name     = "${var.prefix}-resources"
   location = var.location
   tags = {
-    CreatedOnDate = "2023-10-03T19:58:43.6509795Z",
     SkipNRMSNSG   = "true"
   }
 }
@@ -28,11 +27,6 @@ resource "azurerm_virtual_network" "example" {
 	location            = azurerm_resource_group.example.location
 	resource_group_name = azurerm_resource_group.example.name
 	address_space       = ["10.6.0.0/16"]
-
-	tags = {
-		"CreatedOnDate"    = "2022-07-08T23:50:21Z",
-		"SkipASMAzSecPack" = "true"
-	}
 }
 
 resource "azurerm_subnet" "example-delegated" {
@@ -45,8 +39,8 @@ resource "azurerm_subnet" "example-delegated" {
 		name = "exampledelegation"
 
 		service_delegation {
-		name    = "Microsoft.Netapp/volumes"
-		actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
+			name    = "Microsoft.Netapp/volumes"
+			actions = ["Microsoft.Network/networkinterfaces/*", "Microsoft.Network/virtualNetworks/subnets/join/action"]
 		}
 	}
 }
@@ -95,10 +89,6 @@ resource "azurerm_key_vault" "example" {
 		  "Decrypt"
 		]
 	}
-
-	tags = {
-		"CreatedOnDate" = "2022-07-08T23:50:21Z"
-	}
 }
 
 resource "azurerm_key_vault_key" "example" {
@@ -129,10 +119,6 @@ resource "azurerm_private_endpoint" "example" {
 	  is_manual_connection          = false
 	  subresource_names             = ["Vault"]
 	}
-	
-	tags = {
-		CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
-	  }
 }
 
 # creating user assgined identity
@@ -140,10 +126,6 @@ resource "azurerm_user_assigned_identity" "example" {
   name                = "${var.prefix}-user-assigned-identity"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-
-  tags = {
-    CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
-  }
 }
 
 resource "azurerm_netapp_account" "example" {
@@ -157,10 +139,6 @@ resource "azurerm_netapp_account" "example" {
       azurerm_user_assigned_identity.example.id
     ]
   }
-
-  tags = {
-    CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
-  }
 }
 
 resource "azurerm_netapp_account_encryption" "example" {
@@ -168,9 +146,7 @@ resource "azurerm_netapp_account_encryption" "example" {
 	
 	user_assigned_identity_id = azurerm_user_assigned_identity.example.id
 
-	encryption {
-		key_vault_key_id = azurerm_key_vault_key.example.versionless_id
-	}
+	encryption_key = azurerm_key_vault_key.example.versionless_id
 }
 
 resource "azurerm_netapp_pool" "example" {
@@ -182,7 +158,6 @@ resource "azurerm_netapp_pool" "example" {
   size_in_tb          = 4
 
   tags = {
-    "CreatedOnDate"    = "2022-07-08T23:50:21Z",
     "SkipASMAzSecPack" = "true"
   }
 
@@ -214,13 +189,34 @@ resource "azurerm_netapp_volume" "example" {
     root_access_enabled = true
   }
 
-  tags = {
-    "CreatedOnDate"    = "2022-07-08T23:50:21Z",
-    "SkipASMAzSecPack" = "true"
-  }
-
   depends_on = [
     azurerm_netapp_account_encryption.example,
     azurerm_private_endpoint.example
+  ]
+}
+
+resource "azurerm_netapp_volume" "example1" {
+  name                          = "${var.prefix}-vol1"
+  location                      = azurerm_resource_group.example.location
+  resource_group_name           = azurerm_resource_group.example.name
+  account_name                  = azurerm_netapp_account.example.name
+  pool_name                     = azurerm_netapp_pool.example.name
+  volume_path                   = "${var.prefix}-my-unique-file-path-vol1"
+  service_level                 = "Standard"
+  subnet_id                     = azurerm_subnet.example-delegated.id
+  storage_quota_in_gb           = 100
+  network_features              = "Standard"
+
+  export_policy_rule {
+    rule_index          = 1
+    allowed_clients     = ["0.0.0.0/0"]
+    protocols_enabled   = ["NFSv3"]
+    unix_read_only      = false
+    unix_read_write     = true
+    root_access_enabled = true
+  }
+
+  depends_on = [
+    azurerm_netapp_volume.example
   ]
 }
