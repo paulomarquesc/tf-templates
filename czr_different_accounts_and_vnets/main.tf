@@ -7,6 +7,9 @@ provider "azurerm" {
 resource "azurerm_resource_group" "example" {
   name     = "${var.prefix}-resources"
   location = var.location
+  tags = {
+    "SkipNRMSNSG" = "true"
+  }
 }
 
 resource "azurerm_virtual_network" "example_primary" {
@@ -20,7 +23,7 @@ resource "azurerm_subnet" "example_primary" {
   name                 = "${var.prefix}-subnet"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.example_primary.name
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = ["10.0.0.0/24"]
 
   delegation {
     name = "testdelegation"
@@ -36,14 +39,14 @@ resource "azurerm_virtual_network" "example_secondary" {
   name                = "${var.prefix}-virtualnetwork-secondary"
   location            = var.location
   resource_group_name = azurerm_resource_group.example.name
-  address_space       = ["11.0.0.0/16"]
+  address_space       = ["172.16.0.0/12"]
 }
 
 resource "azurerm_subnet" "example_secondary" {
   name                 = "${var.prefix}-subnet"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.example_secondary.name
-  address_prefixes     = ["11.0.2.0/24"]
+  address_prefixes     = ["172.16.0.0/24"]
 
   delegation {
     name = "testdelegation"

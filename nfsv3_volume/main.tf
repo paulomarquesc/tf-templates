@@ -73,12 +73,9 @@ resource "azurerm_netapp_volume" "example" {
   volume_path         = "${var.prefix}-netappvolume"
   service_level       = "Standard"
   protocols           = ["NFSv3"]
+  network_features    = "Basic"
   subnet_id           = azurerm_subnet.example.id
   storage_quota_in_gb = 100
-
-  tags = {
-    CreatedOnDate = "2023-10-03T19:58:43.6509795Z"
-  }
 
   export_policy_rule {
     rule_index = 1
