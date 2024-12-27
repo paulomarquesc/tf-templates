@@ -58,9 +58,28 @@ resource "azurerm_netapp_pool" "example" {
   qos_type            = "Manual"
 }
 
+resource "azurerm_netapp_snapshot_policy" "example" {
+  name                = "${var.prefix}-snapshot-policy"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  account_name        = azurerm_netapp_account.example.name
+  enabled             = true
+
+  monthly_schedule {
+    snapshots_to_keep = 1
+    days_of_month     = [15, 30]
+    hour              = 23
+    minute            = 30
+  }
+
+  tags = {
+    "CreatedOnDate"    = "2022-07-08T23:50:21Z",
+    "SkipASMAzSecPack" = "true"
+  }
+}
 
 resource "azurerm_netapp_volume_group_oracle" "example" {
-  name                   = "${var.prefix}-NetAppVolumeGroupOracle"
+  name                   = "${var.prefix}-volume-group-oracle"
   location               = azurerm_resource_group.example.location
   resource_group_name    = azurerm_resource_group.example.name
   account_name           = azurerm_netapp_account.example.name

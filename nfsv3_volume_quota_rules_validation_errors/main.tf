@@ -16,10 +16,10 @@ resource "azurerm_virtual_network" "example" {
   name                = "${var.prefix}-virtualnetwork"
   location            = azurerm_resource_group.example.location
   resource_group_name = azurerm_resource_group.example.name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = ["10.10.0.0/16"]
 
   tags = {
-    "CreatedOnDate" = "2023-08-18T17:44:19.9445791Z" 
+    "CreatedOnDate" = "2023-08-18T17:44:19.9445791Z"
   }
 }
 
@@ -27,7 +27,7 @@ resource "azurerm_subnet" "example" {
   name                 = "${var.prefix}-subnet"
   resource_group_name  = azurerm_resource_group.example.name
   virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = ["10.10.2.0/24"]
 
   delegation {
     name = "testdelegation"
@@ -45,7 +45,7 @@ resource "azurerm_netapp_account" "example" {
   resource_group_name = azurerm_resource_group.example.name
 
   tags = {
-    "CreatedOnDate" = "2023-08-18T17:44:19.9445791Z" 
+    "CreatedOnDate" = "2023-08-18T17:44:19.9445791Z"
   }
 }
 
@@ -58,7 +58,7 @@ resource "azurerm_netapp_pool" "example" {
   size_in_tb          = 4
 
   tags = {
-    "CreatedOnDate" = "2023-08-18T17:44:19.9445791Z" 
+    "CreatedOnDate" = "2023-08-18T17:44:19.9445791Z"
   }
 }
 
@@ -79,10 +79,10 @@ resource "azurerm_netapp_volume" "example" {
   storage_quota_in_gb = 100
 
   export_policy_rule {
-    rule_index = 1
-    allowed_clients = ["0.0.0.0/0"]
+    rule_index        = 1
+    allowed_clients   = ["0.0.0.0/0"]
     protocols_enabled = ["NFSv3"]
-    unix_read_write = true
+    unix_read_write   = true
   }
 
   tags = {
@@ -91,84 +91,63 @@ resource "azurerm_netapp_volume" "example" {
 }
 
 resource "azurerm_netapp_volume_quota_rule" "example1" {
-  name                   = "${var.prefix}-quota-rule-1"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_target           = "S-1-5-21-3623811015-3361044348-30300820-1013"
-  quota_size_in_kib      = 1024
-  quota_type             = "IndividualGroupQuota"
+  name              = "${var.prefix}-quota-rule-1"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_target      = "S-1-5-21-3623811015-3361044348-30300820-1013"
+  quota_size_in_kib = 1024
+  quota_type        = "IndividualGroupQuota"
 }
 
 resource "azurerm_netapp_volume_quota_rule" "example2" {
-  name                   = "${var.prefix}-quota-rule-2"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_target           = "S-1-5-21-3623811015-3361044348-30300820-1013"
-  quota_size_in_kib      = 1024
-  quota_type             = "DefaultUserQuota"
+  name              = "${var.prefix}-quota-rule-2"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_target      = "S-1-5-21-3623811015-3361044348-30300820-1013"
+  quota_size_in_kib = 1024
+  quota_type        = "DefaultUserQuota"
 }
 
 resource "azurerm_netapp_volume_quota_rule" "example3" {
-  name                   = "${var.prefix}-quota-rule-3"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_target           = "S-1-5-21-3623811015-3361044348-30300820-1013"
-  quota_size_in_kib      = 1024
-  quota_type             = "DefaultGroupQuota"
+  name              = "${var.prefix}-quota-rule-3"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_target      = "S-1-5-21-3623811015-3361044348-30300820-1013"
+  quota_size_in_kib = 1024
+  quota_type        = "DefaultGroupQuota"
 }
 
 resource "azurerm_netapp_volume_quota_rule" "example4" {
-  name                   = "${var.prefix}-quota-rule-4"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_target           = "1001"
-  quota_size_in_kib      = 1024
-  quota_type             = "DefaultUserQuota"
+  name              = "${var.prefix}-quota-rule-4"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_target      = "1001"
+  quota_size_in_kib = 1024
+  quota_type        = "DefaultUserQuota"
 }
 
 resource "azurerm_netapp_volume_quota_rule" "example5" {
-  name                   = "${var.prefix}-quota-rule-5"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_target           = "1002"
-  quota_size_in_kib      = 1024
-  quota_type             = "DefaultGroupQuota"
+  name              = "${var.prefix}-quota-rule-5"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_target      = "1002"
+  quota_size_in_kib = 1024
+  quota_type        = "DefaultGroupQuota"
 }
 
 resource "azurerm_netapp_volume_quota_rule" "example6" {
-  name                   = "${var.prefix}-quota-rule-6"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_size_in_kib      = 1024
-  quota_type             = "IndividualGroupQuota"
+  name              = "${var.prefix}-quota-rule-6"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_size_in_kib = 1024
+  quota_type        = "IndividualGroupQuota"
 }
 
 
 resource "azurerm_netapp_volume_quota_rule" "example7" {
-  name                   = "${var.prefix}-quota-rule-7"
-  location               = azurerm_resource_group.example.location
-  resource_group_name    = azurerm_resource_group.example.name
-  account_name           = azurerm_netapp_account.example.name
-  pool_name              = azurerm_netapp_pool.example.name
-  volume_name            = azurerm_netapp_volume.example.name
-  quota_size_in_kib      = 1024
-  quota_type             = "IndividualUserQuota"
+  name              = "${var.prefix}-quota-rule-7"
+  location          = azurerm_resource_group.example.location
+  volume_id         = azurerm_netapp_volume.example.id
+  quota_size_in_kib = 1024
+  quota_type        = "IndividualUserQuota"
 }
