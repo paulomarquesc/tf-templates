@@ -41,33 +41,33 @@ resource "azurerm_key_vault" "example" {
   enabled_for_template_deployment = true
   purge_protection_enabled        = true
   tenant_id                       = var.tenant_id
-  sku_name = "standard"
+  sku_name                        = "standard"
 
   access_policy {
-  	tenant_id    = azurerm_netapp_account.example.identity.0.tenant_id
-  	object_id    = data.azurerm_client_config.current.object_id
+    tenant_id = azurerm_netapp_account.example.identity.0.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
 
     certificate_permissions = []
-	secret_permissions = []
-	storage_permissions = []
-	key_permissions = [
-	  "Get",
-	  "Create",
-	  "Delete",
-	  "WrapKey",
-	  "UnwrapKey",
-	  "GetRotationPolicy",
-	  "SetRotationPolicy",
+    secret_permissions      = []
+    storage_permissions     = []
+    key_permissions = [
+      "Get",
+      "Create",
+      "Delete",
+      "WrapKey",
+      "UnwrapKey",
+      "GetRotationPolicy",
+      "SetRotationPolicy",
     ]
   }
 
   access_policy {
-    tenant_id    = azurerm_netapp_account.example.identity.0.tenant_id
-    object_id    = azurerm_netapp_account.example.identity.0.principal_id
+    tenant_id = azurerm_netapp_account.example.identity.0.tenant_id
+    object_id = azurerm_netapp_account.example.identity.0.principal_id
 
     certificate_permissions = []
-	secret_permissions = []
-	storage_permissions = []
+    secret_permissions      = []
+    storage_permissions     = []
     key_permissions = [
       "Get",
       "Encrypt",
@@ -97,9 +97,9 @@ resource "azurerm_key_vault_key" "example" {
 }
 
 resource "azurerm_netapp_account_encryption" "example" {
-  netapp_account_id = azurerm_netapp_account.example.id
+  netapp_account_id                     = azurerm_netapp_account.example.id
   system_assigned_identity_principal_id = azurerm_netapp_account.example.identity.0.principal_id
-  encryption_key = azurerm_key_vault_key.example.versionless_id
+  encryption_key                        = azurerm_key_vault_key.example.versionless_id
 }
 
 resource "azurerm_virtual_network" "example" {

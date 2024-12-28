@@ -87,18 +87,18 @@ resource "azurerm_netapp_volume_group_oracle" "example" {
   application_identifier = "TST"
 
   volume {
-    name                         = "${var.prefix}-volume-ora1"
-    volume_path                  = "${var.prefix}-my-unique-file-ora-path-1"
-    service_level                = "Standard"
-    capacity_pool_id             = azurerm_netapp_pool.example.id
-    subnet_id                    = azurerm_subnet.example.id
-    zone                         = "1"
-    volume_spec_name             = "ora-data1"
-    storage_quota_in_gb          = 1024
-    throughput_in_mibps          = 24
-    protocols                    = ["NFSv4.1"]
-    security_style               = "unix"
-    snapshot_directory_visible   = false
+    name                       = "${var.prefix}-volume-ora1"
+    volume_path                = "${var.prefix}-my-unique-file-ora-path-1"
+    service_level              = "Standard"
+    capacity_pool_id           = azurerm_netapp_pool.example.id
+    subnet_id                  = azurerm_subnet.example.id
+    zone                       = "1"
+    volume_spec_name           = "ora-data1"
+    storage_quota_in_gb        = 1024
+    throughput_in_mibps        = 24
+    protocols                  = ["NFSv4.1"]
+    security_style             = "unix"
+    snapshot_directory_visible = false
 
     export_policy_rule {
       rule_index          = 1

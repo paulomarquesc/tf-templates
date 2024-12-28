@@ -7,13 +7,13 @@ provider "azurerm" {
 }
 
 resource "random_string" "example" {
-  length = 12
+  length  = 12
   special = true
 }
 
 locals {
-  admin_username    = "exampleadmin"
-  admin_password    = random_string.example.result
+  admin_username = "exampleadmin"
+  admin_password = random_string.example.result
 }
 
 resource "azurerm_resource_group" "example" {
